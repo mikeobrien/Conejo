@@ -3,7 +3,7 @@ Conejo
 
 <img src="https://raw.github.com/mikeobrien/Conejo/master/misc/logo.png"/>
 
-Conejo is a friendly wrapper around the [Pivotal RabbitMQ client](https://www.rabbitmq.com/dotnet.html). It provides fluent configuration and DI friendly exchange and queue definitions a la [Fluent NHibernate](http://www.fluentnhibernate.org/).
+Conejo is a friendly wrapper around the [Pivotal RabbitMQ client](https://www.rabbitmq.com/dotnet.html). It provides fluent configuration and DI friendly exchange and queue definitions in the spirit of [Fluent NHibernate](http://www.fluentnhibernate.org/).
 
 Install
 ------------
