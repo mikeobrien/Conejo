@@ -43,7 +43,7 @@ var subscriber =
                 .ThatsExclusive()
                 .ThatsAutoDeleted());
 
-subscriber.EnsureQueueAndExchange();
+subscriber.EnsureExchangeAndQueue();
 
 publisher.Publish(new Message { Text = "hai" });
 
