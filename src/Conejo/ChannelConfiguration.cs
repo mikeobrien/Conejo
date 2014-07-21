@@ -102,13 +102,13 @@ namespace Conejo
             _channelConfiguration = channelConfiguration;
         }
 
-        public FanoutExchangeConfigurationDsl DurableExchange()
+        public FanoutExchangeConfigurationDsl ThatsDurable()
         {
             _channelConfiguration.ExchangeDurable = true;
             return this;
         }
 
-        public FanoutExchangeConfigurationDsl AutoDeleteExchange()
+        public FanoutExchangeConfigurationDsl ThatsAutoDeleted()
         {
             _channelConfiguration.ExchangeAutoDelete = true;
             return this;
@@ -135,25 +135,25 @@ namespace Conejo
             _channelConfiguration = channelConfiguration;
         }
 
-        public FanoutQueueConfigurationDsl DurableQueue()
+        public FanoutQueueConfigurationDsl ThatsDurable()
         {
             _channelConfiguration.QueueDurable = true;
             return this;
         }
 
-        public FanoutQueueConfigurationDsl AutoDeleteQueue()
+        public FanoutQueueConfigurationDsl ThatsAutoDeleted()
         {
             _channelConfiguration.QueueAutoDelete = true;
             return this;
         }
 
-        public FanoutQueueConfigurationDsl ExclusiveQueue()
+        public FanoutQueueConfigurationDsl ThatsExclusive()
         {
             _channelConfiguration.QueueExclusive = true;
             return this;
         }
 
-        public FanoutQueueConfigurationDsl ShouldAcknowledgeReciept()
+        public FanoutQueueConfigurationDsl ThatAcknowledgesReciept()
         {
             _channelConfiguration.QueueAcknowledgeReciept = true;
             return this;
@@ -169,13 +169,13 @@ namespace Conejo
             _channelConfiguration = channelConfiguration;
         }
 
-        public DirectExchangeConfigurationDsl DurableExchange()
+        public DirectExchangeConfigurationDsl ThatsDurable()
         {
             _channelConfiguration.ExchangeDurable = true;
             return this;
         }
 
-        public DirectExchangeConfigurationDsl AutoDeleteExchange()
+        public DirectExchangeConfigurationDsl ThatsAutoDeleted()
         {
             _channelConfiguration.ExchangeAutoDelete = true;
             return this;
@@ -208,25 +208,25 @@ namespace Conejo
             _channelConfiguration = channelConfiguration;
         }
 
-        public DirectQueueConfigurationDsl DurableQueue()
+        public DirectQueueConfigurationDsl ThatsDurable()
         {
             _channelConfiguration.QueueDurable = true;
             return this;
         }
 
-        public DirectQueueConfigurationDsl AutoDeleteQueue()
+        public DirectQueueConfigurationDsl ThatsAutoDeleted()
         {
             _channelConfiguration.QueueAutoDelete = true;
             return this;
         }
 
-        public DirectQueueConfigurationDsl ExclusiveQueue()
+        public DirectQueueConfigurationDsl ThatsExclusive()
         {
             _channelConfiguration.QueueExclusive = true;
             return this;
         }
 
-        public DirectQueueConfigurationDsl ShouldAcknowledgeReciept()
+        public DirectQueueConfigurationDsl ThatAcknowledgesReciept()
         {
             _channelConfiguration.QueueAcknowledgeReciept = true;
             return this;
@@ -254,13 +254,13 @@ namespace Conejo
             _channelConfiguration = channelConfiguration;
         }
 
-        public TopicExchangeConfigurationDsl DurableExchange()
+        public TopicExchangeConfigurationDsl ThatsDurable()
         {
             _channelConfiguration.ExchangeDurable = true;
             return this;
         }
 
-        public TopicExchangeConfigurationDsl AutoDeleteExchange()
+        public TopicExchangeConfigurationDsl ThatsAutoDeleted()
         {
             _channelConfiguration.ExchangeAutoDelete = true;
             return this;
@@ -299,25 +299,25 @@ namespace Conejo
             _channelConfiguration = channelConfiguration;
         }
 
-        public TopicQueueConfigurationDsl DurableQueue()
+        public TopicQueueConfigurationDsl ThatsDurable()
         {
             _channelConfiguration.QueueDurable = true;
             return this;
         }
 
-        public TopicQueueConfigurationDsl AutoDeleteQueue()
+        public TopicQueueConfigurationDsl ThatsAutoDeleted()
         {
             _channelConfiguration.QueueAutoDelete = true;
             return this;
         }
 
-        public TopicQueueConfigurationDsl ExclusiveQueue()
+        public TopicQueueConfigurationDsl ThatsExclusive()
         {
             _channelConfiguration.QueueExclusive = true;
             return this;
         }
 
-        public TopicQueueConfigurationDsl ShouldAcknowledgeReciept()
+        public TopicQueueConfigurationDsl ThatAcknowledgesReciept()
         {
             _channelConfiguration.QueueAcknowledgeReciept = true;
             return this;

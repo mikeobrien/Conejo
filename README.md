@@ -31,17 +31,17 @@ var connection =
 var publisher =
     Channel.Create(connection, x => x
         .ThroughTopicExchange("pubsub")
-            .DurableExchange()
+            .ThatsDurable()
             .WithTopic<Message>("oh.hai"));
 
 var subscriber =
     Channel.Create(connection, x => x
         .ThroughTopicExchange("pubsub")
-            .DurableExchange()
+            .ThatsDurable()
             .InQueue("messages")
                 .WithTopic("*.hai")
-                .ExclusiveQueue()
-                .AutoDeleteQueue());
+                .ThatsExclusive()
+                .ThatsAutoDeleted());
 
 publisher.EnsureExchange();
 subscriber.EnsureQueue();
@@ -78,13 +78,13 @@ public class Response
 var server = 
     Channel.Create(_connection, x => x
         .ThroughDirectExchange("rpc")
-        .InQueue("ping")
-            .WithRoutingKeyAsQueueName());
+            .InQueue("ping")
+                .WithRoutingKeyAsQueueName());
 
 var client = 
     Channel.Create(_connection, x => x
         .ThroughDirectExchange("rpc")
-        .WithRoutingKey("ping"));
+            .WithRoutingKey("ping"));
 
 server.EnsureExchange();
 client.EnsureQueue();
@@ -114,7 +114,7 @@ public class Publisher : PublisherDefinition<Message>
     {
         Configure(x => x
             .ThroughTopicExchange("pubsub")
-                .DurableExchange()
+                .ThatsDurable()
                 .WithTopic<Message>("oh.hai"));
     }
 }
@@ -125,11 +125,11 @@ public class Subscriber : SubscriberDefinition<Message>
     {
         Configure(x => x
             .ThroughTopicExchange("pubsub")
-            .DurableExchange()
-            .InQueue("messages")
-                .WithTopic("*.hai")
-                .ExclusiveQueue()
-                .AutoDeleteQueue());
+                .ThatsDurable()
+                .InQueue("messages")
+                    .WithTopic("*.hai")
+                    .ThatsExclusive()
+                    .ThatsAutoDeleted());
     }
 }
 ```
