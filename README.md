@@ -85,7 +85,7 @@ var client =
         .ThroughDirectExchange("rpc")
             .WithRoutingKey("ping"));
 
-server.Subscribe<Request, Response>(x => new Response { Text = x.Text });
+server.Serve<Request, Response>(x => new Response { Text = x.Text });
 
 var response = client.Call<Request, Response>(new Request { Text = "hai" });
 
