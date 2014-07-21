@@ -9,9 +9,9 @@ namespace Conejo
     {
         protected RpcServerDefinition(Connection connection) : base(connection) { }
 
-        public virtual Result Subscribe(Func<TRequest, TResponse> handler)
+        public virtual Result Serve(Func<TRequest, TResponse> handler)
         {
-            return Channel.Subscribe(handler);
+            return Channel.Serve(handler);
         }
     }
 }

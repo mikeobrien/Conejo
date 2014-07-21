@@ -28,8 +28,8 @@ namespace Conejo
         public bool ExchangeAutoDelete { get; set; }
 
         public string QueueName { get; set; }
-        public Func<object, string> ExchangeTopic { get; set; }
-        public string QueueTopic { get; set; }
+        public Func<object, string> ExchangeRoutingKey { get; set; }
+        public string QueueRoutingKey { get; set; }
         public bool QueueDurable { get; set; }
         public bool QueueExclusive { get; set; }
         public bool QueueAutoDelete { get; set; }
@@ -51,31 +51,36 @@ namespace Conejo
             return this;
         }
 
-        public ExchangeConfigurationDsl ThroughDirectExchange()
-        {
-            return ThroughDirectExchange(Guid.NewGuid().ToString());
-        }
-
-        public ExchangeConfigurationDsl ThroughDirectExchange(string name)
-        {
-            _configuration.ExchangeName = name;
-            _configuration.ExchangeType = ExchangeType.Direct;
-            return new ExchangeConfigurationDsl(_configuration);
-        }
-
-        public ExchangeConfigurationDsl ThroughFanoutExchange()
+        public FanoutExchangeConfigurationDsl ThroughRandomFanoutExchange()
         {
             return ThroughFanoutExchange(Guid.NewGuid().ToString());
         }
 
-        public ExchangeConfigurationDsl ThroughFanoutExchange(string name)
+        public FanoutExchangeConfigurationDsl ThroughFanoutExchange(string name)
         {
             _configuration.ExchangeName = name;
             _configuration.ExchangeType = ExchangeType.Fanout;
-            return new ExchangeConfigurationDsl(_configuration);
+            return new FanoutExchangeConfigurationDsl(_configuration);
         }
 
-        public TopicExchangeConfigurationDsl ThroughTopicExchange()
+        public DirectExchangeConfigurationDsl ThroughDefaultDirectExchange()
+        {
+            return ThroughDirectExchange("");
+        }
+
+        public DirectExchangeConfigurationDsl ThroughRandomDirectExchange()
+        {
+            return ThroughDirectExchange(Guid.NewGuid().ToString());
+        }
+
+        public DirectExchangeConfigurationDsl ThroughDirectExchange(string name)
+        {
+            _configuration.ExchangeName = name;
+            _configuration.ExchangeType = ExchangeType.Direct;
+            return new DirectExchangeConfigurationDsl(_configuration);
+        }
+
+        public TopicExchangeConfigurationDsl ThroughRandomTopicExchange()
         {
             return ThroughTopicExchange(Guid.NewGuid().ToString());
         }
@@ -88,36 +93,155 @@ namespace Conejo
         }
     }
 
-    public class ExchangeConfigurationDsl
+    public class FanoutExchangeConfigurationDsl
     {
         private readonly ChannelConfiguration _channelConfiguration;
 
-        public ExchangeConfigurationDsl(ChannelConfiguration channelConfiguration)
+        public FanoutExchangeConfigurationDsl(ChannelConfiguration channelConfiguration)
         {
             _channelConfiguration = channelConfiguration;
         }
 
-        public ExchangeConfigurationDsl DurableExchange()
+        public FanoutExchangeConfigurationDsl DurableExchange()
         {
             _channelConfiguration.ExchangeDurable = true;
             return this;
         }
 
-        public ExchangeConfigurationDsl AutoDeleteExchange()
+        public FanoutExchangeConfigurationDsl AutoDeleteExchange()
         {
             _channelConfiguration.ExchangeAutoDelete = true;
             return this;
         }
 
-        public QueueConfigurationDsl InQueue()
+        public FanoutQueueConfigurationDsl InRandomQueue()
         {
             return InQueue(Guid.NewGuid().ToString());
         }
 
-        public QueueConfigurationDsl InQueue(string name)
+        public FanoutQueueConfigurationDsl InQueue(string name)
         {
             _channelConfiguration.QueueName = name;
-            return new QueueConfigurationDsl(_channelConfiguration);
+            return new FanoutQueueConfigurationDsl(_channelConfiguration);
+        }
+    }
+
+    public class FanoutQueueConfigurationDsl
+    {
+        private readonly ChannelConfiguration _channelConfiguration;
+
+        public FanoutQueueConfigurationDsl(ChannelConfiguration channelConfiguration)
+        {
+            _channelConfiguration = channelConfiguration;
+        }
+
+        public FanoutQueueConfigurationDsl DurableQueue()
+        {
+            _channelConfiguration.QueueDurable = true;
+            return this;
+        }
+
+        public FanoutQueueConfigurationDsl AutoDeleteQueue()
+        {
+            _channelConfiguration.QueueAutoDelete = true;
+            return this;
+        }
+
+        public FanoutQueueConfigurationDsl ExclusiveQueue()
+        {
+            _channelConfiguration.QueueExclusive = true;
+            return this;
+        }
+
+        public FanoutQueueConfigurationDsl ShouldAcknowledgeReciept()
+        {
+            _channelConfiguration.QueueAcknowledgeReciept = true;
+            return this;
+        }
+    }
+
+    public class DirectExchangeConfigurationDsl
+    {
+        private readonly ChannelConfiguration _channelConfiguration;
+
+        public DirectExchangeConfigurationDsl(ChannelConfiguration channelConfiguration)
+        {
+            _channelConfiguration = channelConfiguration;
+        }
+
+        public DirectExchangeConfigurationDsl DurableExchange()
+        {
+            _channelConfiguration.ExchangeDurable = true;
+            return this;
+        }
+
+        public DirectExchangeConfigurationDsl AutoDeleteExchange()
+        {
+            _channelConfiguration.ExchangeAutoDelete = true;
+            return this;
+        }
+
+        public DirectExchangeConfigurationDsl WithRoutingKey(string routingKey)
+        {
+            _channelConfiguration.ExchangeRoutingKey = message => routingKey;
+            return this;
+        }
+
+        public DirectQueueConfigurationDsl InRandomQueue()
+        {
+            return InQueue(Guid.NewGuid().ToString());
+        }
+
+        public DirectQueueConfigurationDsl InQueue(string name)
+        {
+            _channelConfiguration.QueueName = name;
+            return new DirectQueueConfigurationDsl(_channelConfiguration);
+        }
+    }
+
+    public class DirectQueueConfigurationDsl
+    {
+        private readonly ChannelConfiguration _channelConfiguration;
+
+        public DirectQueueConfigurationDsl(ChannelConfiguration channelConfiguration)
+        {
+            _channelConfiguration = channelConfiguration;
+        }
+
+        public DirectQueueConfigurationDsl DurableQueue()
+        {
+            _channelConfiguration.QueueDurable = true;
+            return this;
+        }
+
+        public DirectQueueConfigurationDsl AutoDeleteQueue()
+        {
+            _channelConfiguration.QueueAutoDelete = true;
+            return this;
+        }
+
+        public DirectQueueConfigurationDsl ExclusiveQueue()
+        {
+            _channelConfiguration.QueueExclusive = true;
+            return this;
+        }
+
+        public DirectQueueConfigurationDsl ShouldAcknowledgeReciept()
+        {
+            _channelConfiguration.QueueAcknowledgeReciept = true;
+            return this;
+        }
+
+        public DirectQueueConfigurationDsl WithRoutingKey(string routingKey)
+        {
+            _channelConfiguration.QueueRoutingKey = routingKey;
+            return this;
+        }
+
+        public DirectQueueConfigurationDsl WithRoutingKeyAsQueueName()
+        {
+            _channelConfiguration.QueueRoutingKey = _channelConfiguration.QueueName;
+            return this;
         }
     }
 
@@ -144,59 +268,64 @@ namespace Conejo
 
         public TopicExchangeConfigurationDsl WithTopic(string topic)
         {
-            _channelConfiguration.ExchangeTopic = message => topic;
+            _channelConfiguration.ExchangeRoutingKey = message => topic;
             return this;
         }
 
         public TopicExchangeConfigurationDsl WithTopic<TMessage>(params Func<TMessage, string>[] topic)
         {
-            _channelConfiguration.ExchangeTopic = message => topic.Select(x => x((TMessage)message)).Aggregate((a, i) => a + "." + i);
+            _channelConfiguration.ExchangeRoutingKey = message => topic.Select(x => x((TMessage)message)).Aggregate((a, i) => a + "." + i);
             return this;
         }
 
-        public QueueConfigurationDsl InQueue(string topic)
+        public TopicQueueConfigurationDsl InRandomQueue()
         {
-            return InQueue(Guid.NewGuid().ToString(), topic);
+            return InQueue(Guid.NewGuid().ToString());
         }
 
-        public QueueConfigurationDsl InQueue(string name, string topic)
+        public TopicQueueConfigurationDsl InQueue(string name)
         {
             _channelConfiguration.QueueName = name;
-            _channelConfiguration.QueueTopic = topic;
-            return new QueueConfigurationDsl(_channelConfiguration);
+            return new TopicQueueConfigurationDsl(_channelConfiguration);
         }
     }
 
-    public class QueueConfigurationDsl
+    public class TopicQueueConfigurationDsl
     {
         private readonly ChannelConfiguration _channelConfiguration;
 
-        public QueueConfigurationDsl(ChannelConfiguration channelConfiguration)
+        public TopicQueueConfigurationDsl(ChannelConfiguration channelConfiguration)
         {
             _channelConfiguration = channelConfiguration;
         }
 
-        public QueueConfigurationDsl DurableQueue()
+        public TopicQueueConfigurationDsl DurableQueue()
         {
             _channelConfiguration.QueueDurable = true;
             return this;
         }
 
-        public QueueConfigurationDsl AutoDeleteQueue()
+        public TopicQueueConfigurationDsl AutoDeleteQueue()
         {
             _channelConfiguration.QueueAutoDelete = true;
             return this;
         }
 
-        public QueueConfigurationDsl ExclusiveQueue()
+        public TopicQueueConfigurationDsl ExclusiveQueue()
         {
             _channelConfiguration.QueueExclusive = true;
             return this;
         }
 
-        public QueueConfigurationDsl ShouldAcknowledgeReciept()
+        public TopicQueueConfigurationDsl ShouldAcknowledgeReciept()
         {
             _channelConfiguration.QueueAcknowledgeReciept = true;
+            return this;
+        }
+
+        public TopicQueueConfigurationDsl WithTopic(string topic)
+        {
+            _channelConfiguration.QueueRoutingKey = topic;
             return this;
         }
     }

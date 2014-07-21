@@ -33,11 +33,11 @@ namespace Tests
         public void should_publish_and_subscribe_through_direct_queue()
         {
             var publisher = Channel.Create(_connection, x => x
-                .ThroughDirectExchange());
+                .ThroughRandomDirectExchange());
 
             var subscriber = Channel.Create(_connection, x => x
                 .ThroughDirectExchange(publisher.Configuration.ExchangeName)
-                .InQueue());
+                .InRandomQueue());
 
             publisher.EnsureExchange();
             subscriber.EnsureQueue();
@@ -59,11 +59,11 @@ namespace Tests
         public void should_publish_and_subscribe_through_direct_queue_async()
         {
             var publisher = Channel.Create(_connection, x => x
-                .ThroughDirectExchange());
+                .ThroughRandomDirectExchange());
 
             var subscriber = Channel.Create(_connection, x => x
                 .ThroughDirectExchange(publisher.Configuration.ExchangeName)
-                .InQueue());
+                .InRandomQueue());
 
             publisher.EnsureExchange();
             subscriber.EnsureQueue();
@@ -92,16 +92,18 @@ namespace Tests
         public void should_publish_and_subscribe_through_topic_queue()
         {
             var publisher = Channel.Create(_connection, x => x
-                .ThroughTopicExchange()
+                .ThroughRandomTopicExchange()
                 .WithTopic<Message>(y => "oh", y => y.Text));
 
             var subscriberMatched = Channel.Create(_connection, x => x
                 .ThroughTopicExchange(publisher.Configuration.ExchangeName)
-                .InQueue("*.hai"));
+                .InRandomQueue()
+                    .WithTopic("*.hai"));
 
             var subscriberNotMatched = Channel.Create(_connection, x => x
                 .ThroughTopicExchange(publisher.Configuration.ExchangeName)
-                .InQueue("yada.*"));
+                .InRandomQueue()
+                    .WithTopic("yada.*"));
 
             publisher.EnsureExchange();
             subscriberNotMatched.EnsureQueue();
@@ -133,15 +135,15 @@ namespace Tests
         public void should_publish_and_subscribe_through_fanout_queue()
         {
             var publisher = Channel.Create(_connection, x => x
-                .ThroughFanoutExchange());
+                .ThroughRandomFanoutExchange());
 
             var subscriber1 = Channel.Create(_connection, x => x
                 .ThroughFanoutExchange(publisher.Configuration.ExchangeName)
-                .InQueue());
+                .InRandomQueue());
 
             var subscriber2 = Channel.Create(_connection, x => x
                 .ThroughFanoutExchange(publisher.Configuration.ExchangeName)
-                .InQueue());
+                .InRandomQueue());
 
             publisher.EnsureExchange();
             subscriber2.EnsureQueue();
@@ -173,17 +175,18 @@ namespace Tests
         public void should_rpc()
         {
             var server = Channel.Create(_connection, x => x
-                .ThroughDirectExchange()
-                .InQueue());
+                .ThroughRandomDirectExchange()
+                .InRandomQueue()
+                    .WithRoutingKeyAsQueueName());
 
             var client = Channel.Create(_connection, x => x
                 .ThroughDirectExchange(server.Configuration.ExchangeName)
-                .InQueue(server.Configuration.QueueName));
+                .WithRoutingKey(server.Configuration.QueueName));
 
             server.EnsureExchange();
             server.EnsureQueue();
 
-            server.Subscribe<Message, Message>(x => x);
+            server.Serve<Message, Message>(x => x);
 
             var response = client.Call<Message, Message>(_publishMessage, Timeout);
 
@@ -203,8 +206,8 @@ namespace Tests
         public void should_rpc_async()
         {
             var server = Channel.Create(_connection, x => x
-                .ThroughDirectExchange()
-                .InQueue());
+                .ThroughRandomDirectExchange()
+                .InRandomQueue());
 
             var client = Channel.Create(_connection, x => x
                 .ThroughDirectExchange(server.Configuration.ExchangeName)
@@ -213,7 +216,7 @@ namespace Tests
             server.EnsureExchange();
             server.EnsureQueue();
 
-            server.Subscribe<Message, Message>(x => x);
+            server.Serve<Message, Message>(x => x);
 
             Message responseMessage = null;
 

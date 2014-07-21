@@ -6,6 +6,6 @@ namespace Conejo
         where TRequest : class, new()
         where TResponse : class, new()
     {
-        Result Subscribe(Func<TRequest, TResponse> handler);
+        Result Serve(Func<TRequest, TResponse> handler);
     }
 }

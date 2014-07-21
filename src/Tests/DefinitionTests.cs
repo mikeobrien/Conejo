@@ -3,7 +3,6 @@ using System.Threading;
 using Conejo;
 using NUnit.Framework;
 using Should;
-using StructureMap;
 
 namespace Tests
 {
@@ -47,7 +46,7 @@ namespace Tests
             {
                 Configure(x => x
                     .ThroughDirectExchange(PubSubDirectExchange)
-                    .InQueue());
+                    .InRandomQueue());
             }
         }
 
@@ -120,7 +119,8 @@ namespace Tests
             {
                 Configure(x => x
                     .ThroughTopicExchange(PubSubTopicExchange)
-                    .InQueue("*.hai"));
+                    .InRandomQueue()
+                        .WithTopic("*.hai"));
             }
         }
 
@@ -130,7 +130,8 @@ namespace Tests
             {
                 Configure(x => x
                     .ThroughTopicExchange(PubSubTopicExchange)
-                    .InQueue("yada.*"));
+                    .InRandomQueue()
+                        .WithTopic("yada.*"));
             }
         }
 
@@ -183,7 +184,7 @@ namespace Tests
             {
                 Configure(x => x
                     .ThroughFanoutExchange(PubSubFanoutExchange)
-                    .InQueue());
+                    .InRandomQueue());
             }
         }
 
@@ -193,7 +194,7 @@ namespace Tests
             {
                 Configure(x => x
                     .ThroughFanoutExchange(PubSubFanoutExchange)
-                    .InQueue());
+                    .InRandomQueue());
             }
         }
 
@@ -239,7 +240,8 @@ namespace Tests
             {
                 Configure(x => x
                     .ThroughDirectExchange(RpcExchange)
-                    .InQueue(RpcQueue));
+                    .InQueue(RpcQueue)
+                        .WithRoutingKeyAsQueueName());
             }
         }
 
@@ -249,7 +251,7 @@ namespace Tests
             {
                 Configure(x => x
                     .ThroughDirectExchange(RpcExchange)
-                    .InQueue(RpcQueue));
+                    .WithRoutingKey(RpcQueue));
             }
         }
 
@@ -262,7 +264,7 @@ namespace Tests
             server.Channel.EnsureExchange();
             server.Channel.EnsureQueue();
 
-            server.Subscribe(x => x);
+            server.Serve(x => x);
 
             var response = client.Call(_publishMessage, Timeout);
 
@@ -287,7 +289,7 @@ namespace Tests
             server.Channel.EnsureExchange();
             server.Channel.EnsureQueue();
 
-            server.Subscribe(x => x);
+            server.Serve(x => x);
 
             Message responseMessage = null;
 

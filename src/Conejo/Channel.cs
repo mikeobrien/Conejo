@@ -53,12 +53,11 @@ namespace Conejo
         {
             try
             {
-                EnsureExchange();
-                if (Configuration.ExchangeType == ExchangeType.Direct &&
-                    Configuration.QueueName.IsNotNullOrEmpty()) EnsureQueue();
+                EnsureExchangeAndQueue();
+
                 _channel.Value.BasicPublish(
                     Configuration.ExchangeName,
-                    BuildTopic(message),
+                    BuildRoutingKey(message),
                     CreateBasicProperties(),
                     Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message)));
             }
@@ -76,17 +75,16 @@ namespace Conejo
         {
             try
             {
-                EnsureExchange();
-                if (Configuration.QueueName.IsNotNullOrEmpty()) EnsureQueue();
+                EnsureExchangeAndQueue();
 
                 var consumer = new EventingBasicConsumer(_channel.Value);
 
                 consumer.Received += (c, result) =>
                 {
-                    handler(result.Body == null ? null : JsonConvert.DeserializeObject<TMessage>(
-                        Encoding.UTF8.GetString(result.Body)));
                     if (Configuration.QueueAcknowledgeReciept)
                         _channel.Value.BasicAck(result.DeliveryTag, false);
+                    handler(result.Body == null ? null : JsonConvert.DeserializeObject<TMessage>(
+                        Encoding.UTF8.GetString(result.Body)));
                 };
 
                 _channel.Value.BasicConsume(Configuration.QueueName,
@@ -131,8 +129,7 @@ namespace Conejo
         {
             try
             {
-                EnsureExchange();
-                if (Configuration.QueueName.IsNotNullOrEmpty()) EnsureQueue();
+                EnsureExchangeAndQueue();
 
                 var consumer = new QueueingBasicConsumer(_channel.Value);
                 _channel.Value.BasicConsume(Configuration.QueueName, 
@@ -149,19 +146,21 @@ namespace Conejo
             }
         }
 
-        public Result Subscribe<TRequest, TResponse>(Func<TRequest, TResponse> handler)
+        public Result Serve<TRequest, TResponse>(Func<TRequest, TResponse> handler)
             where TRequest : class, new()
             where TResponse : class, new()
         {
             try
             {
-                EnsureExchange();
-                if (Configuration.QueueName.IsNotNullOrEmpty()) EnsureQueue();
+                EnsureExchangeAndQueue();
 
                 var consumer = new EventingBasicConsumer(_channel.Value);
 
                 consumer.Received += (c, request) =>
                 {
+                    if (Configuration.QueueAcknowledgeReciept)
+                        _channel.Value.BasicAck(request.DeliveryTag, false);
+
                     var response = handler(request.Body == null ? null : JsonConvert.DeserializeObject<TRequest>(
                         Encoding.UTF8.GetString(request.Body)));
 
@@ -173,9 +172,6 @@ namespace Conejo
                         request.BasicProperties.ReplyTo,
                         responseProperties,
                         Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(response)));
-
-                    if (Configuration.QueueAcknowledgeReciept)
-                        _channel.Value.BasicAck(request.DeliveryTag, false);
                 };
 
                 _channel.Value.BasicConsume(Configuration.QueueName,
@@ -225,8 +221,7 @@ namespace Conejo
         {
             try
             {
-                EnsureExchange();
-                EnsureQueue();
+                EnsureExchangeAndQueue();
 
                 var requestProperties = CreateBasicProperties();
                 requestProperties.CorrelationId = Guid.NewGuid().ToString();
@@ -234,7 +229,7 @@ namespace Conejo
 
                 _channel.Value.BasicPublish(
                     Configuration.ExchangeName,
-                    BuildTopic(message),
+                    BuildRoutingKey(message),
                     requestProperties,
                     Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message)));
 
@@ -266,8 +261,7 @@ namespace Conejo
         {
             try
             {
-                EnsureExchange();
-                EnsureQueue();
+                EnsureExchangeAndQueue();
 
                 var requestProperties = CreateBasicProperties();
                 requestProperties.CorrelationId = Guid.NewGuid().ToString();
@@ -275,7 +269,7 @@ namespace Conejo
 
                 _channel.Value.BasicPublish(
                     Configuration.ExchangeName,
-                    BuildTopic(message),
+                    BuildRoutingKey(message),
                     requestProperties,
                     Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message)));
 
@@ -309,6 +303,12 @@ namespace Conejo
             }
         }
 
+        public void EnsureExchangeAndQueue()
+        {
+            EnsureExchange();
+            EnsureQueue();
+        }
+
         public void EnsureExchange()
         {
             _channel.Value.ExchangeDeclare(
@@ -320,15 +320,18 @@ namespace Conejo
 
         public void EnsureQueue()
         {
+            if (Configuration.QueueName.IsNullOrEmpty()) return;
+
             _channel.Value.QueueDeclare(
                 Configuration.QueueName.ToLower(),
                 Configuration.QueueDurable,
                 Configuration.QueueExclusive,
                 Configuration.QueueAutoDelete, null);
+
             _channel.Value.QueueBind(
                 Configuration.QueueName.ToLower(),
                 Configuration.ExchangeName.ToLower(),
-                Configuration.QueueTopic ?? "");
+                Configuration.QueueRoutingKey ?? "");
         }
 
         public void DeleteExchange()
@@ -341,16 +344,12 @@ namespace Conejo
             _channel.Value.QueueDelete(Configuration.QueueName);
         }
 
-        private string BuildTopic<TMessage>(TMessage message)
+        private string BuildRoutingKey<TMessage>(TMessage message)
         {
-            var topic = "";
-            if (Configuration.ExchangeType == ExchangeType.Topic)
-            {
-                topic = Configuration.ExchangeTopic != null ?
-                    Configuration.ExchangeTopic(message) :
-                    (Configuration.QueueTopic ?? topic);
-            }
-            return topic;
+            return (Configuration.ExchangeType == ExchangeType.Topic ||
+                    Configuration.ExchangeType == ExchangeType.Direct) && 
+                    Configuration.ExchangeRoutingKey != null ? 
+                        Configuration.ExchangeRoutingKey(message) ?? "" : "";
         }
 
         private IBasicProperties CreateBasicProperties()
