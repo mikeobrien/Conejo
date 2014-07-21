@@ -17,7 +17,6 @@
       <tags>rabbitmq rabbit</tags>
       <dependencies>
          <dependency id="RabbitMQ.Client" version="3.0.0" />
-         <dependency id="Newtonsoft.Json" version="6.0.0" />
       </dependencies>
    </metadata>
    <files>

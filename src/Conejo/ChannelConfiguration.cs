@@ -20,7 +20,7 @@ namespace Conejo
             return configuration;
         }
 
-        public Action<Exception> ExceptionHandler { get; set; } 
+        public Action<Exception> ExceptionHandler { get; set; }
 
         public string ExchangeName { get; set; }
         public ExchangeType ExchangeType { get; set; }

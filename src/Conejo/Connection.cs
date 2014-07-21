@@ -11,6 +11,7 @@ namespace Conejo
         public Connection(ConnectionConfiguration configuration)
         {
             _connection = new Lazy<IConnection>(() => CreateConnectionFactory(configuration).CreateConnection());
+            Configuration = configuration;
         }
 
         public static Connection Create()
@@ -28,6 +29,8 @@ namespace Conejo
             config(new ConnectionConfigurationDsl(channelConfiguration));
             return new Connection(channelConfiguration);
         }
+
+        public ConnectionConfiguration Configuration { get; private set; }
 
         public IModel CreateChannel()
         {

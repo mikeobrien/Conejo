@@ -1,7 +1,6 @@
 using System;
 using System.Text;
 using Conejo.Extensions;
-using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
@@ -9,12 +8,14 @@ namespace Conejo
 {
     public class Channel : IDisposable
     {
+        private readonly ISerializer _serializer;
         private readonly Lazy<IModel> _channel;
 
         public Channel(
             Connection connection, 
             ChannelConfiguration configuration)
         {
+            _serializer = connection.Configuration.Serializer;
             Configuration = configuration;
             _channel = new Lazy<IModel>(connection.CreateChannel);
         }
@@ -59,7 +60,7 @@ namespace Conejo
                     Configuration.ExchangeName,
                     BuildRoutingKey(message),
                     CreateBasicProperties(),
-                    Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message)));
+                    Encoding.UTF8.GetBytes(_serializer.Serialize(message)));
             }
             catch (Exception exception)
             {
@@ -83,7 +84,7 @@ namespace Conejo
                 {
                     if (Configuration.QueueAcknowledgeReciept)
                         _channel.Value.BasicAck(result.DeliveryTag, false);
-                    handler(result.Body == null ? null : JsonConvert.DeserializeObject<TMessage>(
+                    handler(result.Body == null ? null : _serializer.Deserialize<TMessage>(
                         Encoding.UTF8.GetString(result.Body)));
                 };
 
@@ -136,7 +137,7 @@ namespace Conejo
                     !Configuration.QueueAcknowledgeReciept, consumer);
                 var result = dequeue(consumer);
                 return new Result<TMessage>(result.Body == null ? null :
-                    JsonConvert.DeserializeObject<TMessage>(Encoding.UTF8.GetString(result.Body)));
+                    _serializer.Deserialize<TMessage>(Encoding.UTF8.GetString(result.Body)));
             }
             catch (Exception exception)
             {
@@ -161,7 +162,7 @@ namespace Conejo
                     if (Configuration.QueueAcknowledgeReciept)
                         _channel.Value.BasicAck(request.DeliveryTag, false);
 
-                    var response = handler(request.Body == null ? null : JsonConvert.DeserializeObject<TRequest>(
+                    var response = handler(request.Body == null ? null : _serializer.Deserialize<TRequest>(
                         Encoding.UTF8.GetString(request.Body)));
 
                     var responseProperties = CreateBasicProperties();
@@ -171,7 +172,7 @@ namespace Conejo
                         "",
                         request.BasicProperties.ReplyTo,
                         responseProperties,
-                        Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(response)));
+                        Encoding.UTF8.GetBytes(_serializer.Serialize(response)));
                 };
 
                 _channel.Value.BasicConsume(Configuration.QueueName,
@@ -231,7 +232,7 @@ namespace Conejo
                     Configuration.ExchangeName,
                     BuildRoutingKey(message),
                     requestProperties,
-                    Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message)));
+                    Encoding.UTF8.GetBytes(_serializer.Serialize(message)));
 
                 var consumer = new QueueingBasicConsumer(_channel.Value);
                 _channel.Value.BasicConsume(requestProperties.ReplyTo,
@@ -244,7 +245,7 @@ namespace Conejo
                         result.BasicProperties.CorrelationId != 
                         requestProperties.CorrelationId) continue;
                     return new Result<TResponse>(result.Body == null ? null :
-                        JsonConvert.DeserializeObject<TResponse>(Encoding.UTF8.GetString(result.Body)));
+                        _serializer.Deserialize<TResponse>(Encoding.UTF8.GetString(result.Body)));
                 }
             }
             catch (Exception exception)
@@ -271,7 +272,7 @@ namespace Conejo
                     Configuration.ExchangeName,
                     BuildRoutingKey(message),
                     requestProperties,
-                    Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message)));
+                    Encoding.UTF8.GetBytes(_serializer.Serialize(message)));
 
                 var consumer = new EventingBasicConsumer(_channel.Value);
 
@@ -282,7 +283,7 @@ namespace Conejo
                         if (result.BasicProperties != null &&
                             result.BasicProperties.CorrelationId !=
                             requestProperties.CorrelationId) continue;
-                        handler(result.Body == null ? null : JsonConvert.DeserializeObject<TResponse>(
+                        handler(result.Body == null ? null : _serializer.Deserialize<TResponse>(
                             Encoding.UTF8.GetString(result.Body)));
                         if (Configuration.QueueAcknowledgeReciept)
                             _channel.Value.BasicAck(result.DeliveryTag, false);
