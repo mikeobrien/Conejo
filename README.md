@@ -43,8 +43,7 @@ var subscriber =
                 .ThatsExclusive()
                 .ThatsAutoDeleted());
 
-publisher.EnsureExchange();
-subscriber.EnsureQueue();
+subscriber.EnsureQueueAndExchange();
 
 publisher.Publish(new Message { Text = "hai" });
 
@@ -85,8 +84,6 @@ var client =
     Channel.Create(_connection, x => x
         .ThroughDirectExchange("rpc")
             .WithRoutingKey("ping"));
-
-server.EnsureExchangeAndQueue();
 
 server.Subscribe<Request, Response>(x => new Response { Text = x.Text });
 
