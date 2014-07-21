@@ -26,7 +26,7 @@ public class Message
 var connection =
     Connection.Create(x => x
         .ConnectTo("host", "virtual host")
-        .WithCredentials("guest, "guest"));
+        .WithCredentials("guest", "guest"));
 
 var publisher =
     Channel.Create(connection, x => x
