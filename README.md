@@ -32,7 +32,7 @@ var publisher =
     Channel.Create(connection, x => x
         .ThroughTopicExchange("pubsub")
             .ThatsDurable()
-            .WithTopic<Message>("oh.hai"));
+            .WithTopic("oh.hai"));
 
 var subscriber =
     Channel.Create(connection, x => x
