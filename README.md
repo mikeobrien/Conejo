@@ -86,8 +86,7 @@ var client =
         .ThroughDirectExchange("rpc")
             .WithRoutingKey("ping"));
 
-server.EnsureExchange();
-client.EnsureQueue();
+server.EnsureExchangeAndQueue();
 
 server.Subscribe<Request, Response>(x => new Response { Text = x.Text });
 
