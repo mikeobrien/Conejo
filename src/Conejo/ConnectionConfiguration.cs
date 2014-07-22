@@ -40,7 +40,27 @@ namespace Conejo
             return this;
         }
 
-        public ConnectionConfigurationDsl ConnectTo(string host, string virtualHost = null, int? port = null)
+        public ConnectionConfigurationDsl ConnectTo(string host)
+        {
+            _configuration.Host = host;
+            return this;
+        }
+
+        public ConnectionConfigurationDsl ConnectTo(string host, int port)
+        {
+            _configuration.Host = host;
+            _configuration.Port = port;
+            return this;
+        }
+
+        public ConnectionConfigurationDsl ConnectTo(string host, string virtualHost)
+        {
+            _configuration.Host = host;
+            _configuration.VirtualHost = virtualHost;
+            return this;
+        }
+
+        public ConnectionConfigurationDsl ConnectTo(string host, string virtualHost, int port)
         {
             _configuration.Host = host;
             _configuration.VirtualHost = virtualHost;
@@ -55,13 +75,26 @@ namespace Conejo
             return this;
         }
 
-        public ConnectionConfigurationDsl UsingSerializer<T>(Action<T> configure = null)
+        public ConnectionConfigurationDsl UsingSerializer<T>()
+            where T : ISerializer, new()
+        {
+            return UsingSerializer(new T());
+        }
+
+        public ConnectionConfigurationDsl UsingSerializer<T>(Action<T> configure)
             where T : ISerializer, new()
         {
             return UsingSerializer(new T(), configure);
         }
 
-        public ConnectionConfigurationDsl UsingSerializer<T>(T serializer, Action<T> configure = null)
+        public ConnectionConfigurationDsl UsingSerializer<T>(T serializer)
+            where T : ISerializer
+        {
+            _configuration.Serializer = serializer;
+            return this;
+        }
+
+        public ConnectionConfigurationDsl UsingSerializer<T>(T serializer, Action<T> configure)
             where T : ISerializer
         {
             _configuration.Serializer = serializer;
