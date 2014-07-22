@@ -55,6 +55,12 @@ namespace Conejo
             return this;
         }
 
+        public ConnectionConfigurationDsl UsingSerializer<T>(Action<T> configure = null)
+            where T : ISerializer, new()
+        {
+            return UsingSerializer(new T(), configure);
+        }
+
         public ConnectionConfigurationDsl UsingSerializer<T>(T serializer, Action<T> configure = null)
             where T : ISerializer
         {

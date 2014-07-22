@@ -12,7 +12,7 @@ namespace Conejo
         public BuiltInJsonSerializer()
         {
             _serializer = new JavaScriptSerializer();
-            _serializer.RegisterConverters(new[] { new EnumConverter() });
+            _serializer.RegisterConverters(new [] { new EnumConverter() });
         }
 
         public string Serialize(object @object)
