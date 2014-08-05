@@ -244,8 +244,8 @@ namespace Conejo
                     if (result.BasicProperties != null && 
                         result.BasicProperties.CorrelationId != 
                         requestProperties.CorrelationId) continue;
-                    return new Result<TResponse>(result.Body == null ? null :
-                        _serializer.Deserialize<TResponse>(Encoding.UTF8.GetString(result.Body)));
+                    return result.Body == null ? new Result<TResponse>(new TimeoutException()) : 
+                        new Result<TResponse>(_serializer.Deserialize<TResponse>(Encoding.UTF8.GetString(result.Body)));
                 }
             }
             catch (Exception exception)
@@ -360,5 +360,10 @@ namespace Conejo
             basicProperties.ContentEncoding = "utf-8";
             return basicProperties;
         }
+    }
+
+    public class TimeoutException : Exception
+    {
+        public TimeoutException() : base(string.Format("RPC call timed out.")) { }
     }
 }
