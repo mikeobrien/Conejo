@@ -28,8 +28,8 @@ module.exports = function(grunt) {
             }
         },
         nunit: {
+            files: ['src/Conejo.sln'],
             options: {
-                files: ['src/Conejo.sln'],
                 teamcity: true
             }
         },
