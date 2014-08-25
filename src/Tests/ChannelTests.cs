@@ -31,6 +31,32 @@ namespace Tests
         }
 
         [Test]
+        public void should_publish_and_subscribe_through_default_queue()
+        {
+            var routingKey = Guid.NewGuid().ToString();
+            var publisher = Channel.Create(_connection, x => x
+                .ThroughDefaultDirectExchange()
+                    .WithRoutingKey(routingKey));
+
+            var subscriber = Channel.Create(_connection, x => x
+                .ThroughDefaultDirectExchange()
+                .InQueue(routingKey));
+
+            subscriber.EnsureQueue();
+
+            publisher.Publish(_publishMessage);
+            var response = subscriber.Dequeue<Message>(Timeout);
+
+            response.ShouldNotBeNull();
+            response.Message.Text.ShouldEqual(_publishMessage.Text);
+
+            subscriber.DeleteQueue();
+            subscriber.Close();
+
+            publisher.Close();
+        }
+
+        [Test]
         public void should_publish_and_subscribe_through_direct_queue()
         {
             var publisher = Channel.Create(_connection, x => x

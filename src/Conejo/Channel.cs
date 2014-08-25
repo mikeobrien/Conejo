@@ -312,6 +312,8 @@ namespace Conejo
 
         public void EnsureExchange()
         {
+            if (string.IsNullOrEmpty(Configuration.ExchangeName)) return;
+
             _channel.Value.ExchangeDeclare(
                 Configuration.ExchangeName.ToLower(),
                 Configuration.ExchangeType.ToRabbitExchangeType(),
@@ -329,6 +331,8 @@ namespace Conejo
                 Configuration.QueueExclusive,
                 Configuration.QueueAutoDelete, null);
 
+            if (string.IsNullOrEmpty(Configuration.ExchangeName)) return;
+
             _channel.Value.QueueBind(
                 Configuration.QueueName.ToLower(),
                 Configuration.ExchangeName.ToLower(),
@@ -337,6 +341,7 @@ namespace Conejo
 
         public void DeleteExchange()
         {
+            if (string.IsNullOrEmpty(Configuration.ExchangeName)) return;
             _channel.Value.ExchangeDelete(Configuration.ExchangeName);
         }
 
