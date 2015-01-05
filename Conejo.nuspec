@@ -19,7 +19,4 @@
          <dependency id="RabbitMQ.Client" version="3.0.0" />
       </dependencies>
    </metadata>
-   <files>
-      <file src="src\Conejo\bin\Release\Conejo.*" target="lib" />
-   </files>
 </package>
