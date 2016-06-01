@@ -1,7 +1,7 @@
 Conejo
 =============
 
-[![Nuget](http://img.shields.io/nuget/v/Conejo.svg?style=flat)](http://www.nuget.org/packages/Conejo/) [![Nuget downloads](http://img.shields.io/nuget/dt/Conejo.svg?style=flat)](http://www.nuget.org/packages/Conejo/) [![TeamCity Build Status](https://img.shields.io/teamcity/http/build.mikeobrien.net/s/conejo.svg?style=flat)](http://build.mikeobrien.net/viewType.html?buildTypeId=conejo&guest=1)
+[![Nuget](http://img.shields.io/nuget/v/Conejo.svg?style=flat)](http://www.nuget.org/packages/Conejo/) [![TeamCity Build Status](https://img.shields.io/teamcity/http/build.mikeobrien.net/s/conejo.svg?style=flat)](http://build.mikeobrien.net/viewType.html?buildTypeId=conejo&guest=1)
 
 <img src="https://raw.github.com/mikeobrien/Conejo/master/misc/logo.png"/>
 
